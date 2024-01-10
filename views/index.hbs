@@ -1,0 +1,45 @@
+{{!-- <div class="container m-5 card p-4">
+    <h1>Upload</h1>
+    <hr>
+    <form class="form mt-2" action="/" method="post" enctype="multipart/form-data">
+        <label><strong>Wybierz plik/pliki: </strong> <input type="file" class="form-control-file" required name="upload"
+                multiple></label>
+        <br>
+        <input class="mt-3" type="submit" value="UPLOAD">
+    </form>
+</div> --}}
+
+<aside class="d-flex flex-column align-items-center">
+    <button class="btn btn-info btn-lg" onclick="document.getElementById('newFolder').showModal()">Nowy folder</button>
+    <button class="btn btn-info btn-lg" onclick="document.getElementById('newFile').showModal()">Nowy plik
+        tekstowy</button>
+
+</aside>
+<main>
+    {{!-- DIALOGS --}}
+    <dialog id="newFolder">
+        <h3>Tworzenie nowego folderu</h3>
+        <form method="get" action="/addFolder">
+            <input type="text" name="name">
+            <button type="submit">Ok</button>
+        </form>
+        <button type="button" onclick="document.getElementById('newFolder').close()">Cancel</button>
+    </dialog>
+    <dialog id="newFile">
+        <h3>Tworzenie nowego pliku tekstowego</h3>
+        <form method="get" action="/addFile">
+            <input type="text" name="name">
+            <button type="submit">Ok</button>
+        </form>
+        <button type="button" onclick="document.getElementById('newFile').close()">Cancel</button>
+    </dialog>
+
+    {{!-- VIEW --}}
+    <div class="p-5 d-flex flex-wrap">
+        {{#each files}}
+        <div class="element">
+            {{this}}
+        </div>
+        {{/each}}
+    </div>
+</main>

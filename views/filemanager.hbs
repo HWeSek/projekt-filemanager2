@@ -1,0 +1,29 @@
+<div style="float: left;width: 15% ;height: 100vh; background-color:rgb(214, 210, 210);text-align:center;" class="p-3">
+    <h2>File manager</h2>
+    <hr>
+    <form action="/reset" method="get">
+            <button type="submit" onclick="return confirm('Are you sure?!')" class="btn btn-danger">Usuń dane o plikach</button>
+    </form>
+</div>
+<div style="float: left; width:85%">
+ <table>
+    <thead>
+        <tr style="background-color: cornflowerblue; color: whitesmoke">
+            <th>id</th>
+            <th>img</th>
+            <th>name</th>
+            <th>size</th>
+            <th>type</th>
+            <th>-</th>
+            <th>-</th>
+            <th>-</th>
+            <th>-</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each files_table}}
+        {{> tablerow }}
+        {{/each}}
+    </tbody>
+ </table>
+</div>
