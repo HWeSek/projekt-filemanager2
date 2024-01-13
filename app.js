@@ -3,6 +3,7 @@ const app = express()
 const PORT = 3000;
 const path = require("path")
 const fs = require("fs")
+const mime = require('mime-types')
 
 let imghelper = function (type) {
     let src;
@@ -40,11 +41,14 @@ let imghelper = function (type) {
         case "image/gif":
             src = '774690_gif_ducument_format_extension_file_filetype.png';
             break;
+        case "dir":
+            src = '416376_envelope_files_folder_interface_office_icon.png'
+            break;
         default:
             src = "199231_format_file_extension_blank_icon.png"
             break;
     }
-    return `<img src="gfx/icons/${src}"  alt="${type}">`
+    return `<img src="gfx/icons/${src}" width="36" alt="${type}">`
 }
 
 const hbs = require('express-handlebars');
@@ -66,9 +70,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.get("/", function (req, res) {
+    let files_array = [];
+    let dirs_array = [];
     fs.readdir(path.join(__dirname, 'upload'), (err, files) => {
         if (err) throw err
-        res.render('index.hbs', { files });
+        files.forEach((file) => {
+            fs.lstat(path.join(__dirname, 'upload', file), (err, stats) => {
+                if (stats.isDirectory()) {
+                    dirs_array.push({ name: file, type: 'dir' })
+                } else {
+                    files_array.push({ name: file, type: mime.lookup(path.join(__dirname, 'upload', file)) });
+                }
+            })
+        })
+        res.render('index.hbs', { files_array, dirs_array });
     })
 })
 
@@ -92,6 +107,28 @@ app.get("/addFile", function (req, res) {
     res.redirect('/')
 })
 
+app.get("/deleteFile", function (req, res) {
+    let name = req.query.name;
+    if (fs.existsSync(path.join(__dirname, 'upload', name))) {
+
+        fs.unlink(path.join(__dirname, 'upload', name), (err) => {
+            if (err) throw err
+        })
+    }
+    res.redirect('/')
+})
+
+app.get("/deleteFolder", function (req, res) {
+    let name = req.query.name;
+    if (fs.existsSync(path.join(__dirname, 'upload', name))) {
+
+        fs.rmdir(path.join(__dirname, 'upload', name), (err) => {
+            if (err) throw err
+        })
+    }
+    res.redirect('/')
+})
+
 app.post("/", function (req, res) {
     let form = formidable({});
 
@@ -104,12 +141,6 @@ app.post("/", function (req, res) {
     });
     res.redirect('/')
 })
-
-
-
-
-
-
 
 app.use(express.static('static'));
 app.listen(PORT, function () {

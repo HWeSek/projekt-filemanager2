@@ -9,37 +9,55 @@
     </form>
 </div> --}}
 
-<aside class="d-flex flex-column align-items-center">
-    <button class="btn btn-info btn-lg" onclick="document.getElementById('newFolder').showModal()">Nowy folder</button>
-    <button class="btn btn-info btn-lg" onclick="document.getElementById('newFile').showModal()">Nowy plik
-        tekstowy</button>
+{{!-- DIALOGS --}}
+<dialog id="newFolder">
+    <h3>Tworzenie nowego folderu</h3>
+    <form method="get" action="/addFolder">
+        <input type="text" name="name">
+        <button type="submit">Ok</button>
+    </form>
+    <button type="button" onclick="document.getElementById('newFolder').close()">Cancel</button>
+</dialog>
+<dialog id="newFile">
+    <h3>Tworzenie nowego pliku tekstowego</h3>
+    <form method="get" action="/addFile">
+        <input type="text" name="name">
+        <button type="submit">Ok</button>
+    </form>
+    <button type="button" onclick="document.getElementById('newFile').close()">Cancel</button>
+</dialog>
 
-</aside>
-<main>
-    {{!-- DIALOGS --}}
-    <dialog id="newFolder">
-        <h3>Tworzenie nowego folderu</h3>
-        <form method="get" action="/addFolder">
-            <input type="text" name="name">
-            <button type="submit">Ok</button>
-        </form>
-        <button type="button" onclick="document.getElementById('newFolder').close()">Cancel</button>
-    </dialog>
-    <dialog id="newFile">
-        <h3>Tworzenie nowego pliku tekstowego</h3>
-        <form method="get" action="/addFile">
-            <input type="text" name="name">
-            <button type="submit">Ok</button>
-        </form>
-        <button type="button" onclick="document.getElementById('newFile').close()">Cancel</button>
-    </dialog>
+<div class="d-flex">
+    <aside>
+        <button class="btn btn-info btn-lg" onclick="document.getElementById('newFolder').showModal()">Nowy folder</button>
+        <button class="btn btn-info btn-lg" onclick="document.getElementById('newFile').showModal()">Nowy plik tekstowy</button>
+    </aside>
+    <main>
+        {{!-- VIEW --}}
 
-    {{!-- VIEW --}}
-    <div class="p-5 d-flex flex-wrap">
-        {{#each files}}
-        <div class="element">
-            {{this}}
+        <div class="directories">
+            {{#each dirs_array}}
+                <div class="dirbox">
+                    <form method="get" action="/deleteFolder">
+                    {{{fileImg type}}}
+                    <button type="submit" name="name" value="{{name}}" class="delete-btn">X</button>
+                    </form>
+                    {{name}}
+                </div>
+            {{/each}}
         </div>
-        {{/each}}
-    </div>
-</main>
+        <hr>
+        <div class="files">
+            {{#each files_array}}
+                <div class="filebox">
+                    <form method="get" action="/deleteFile">
+                    {{{fileImg type}}}
+                    <button type="submit" name="name" value="{{name}}" class="delete-btn">X</button>
+                    </form>
+                    {{name}}
+                </div>
+            {{/each}}
+        </div>
+    </main>
+</div>
+
