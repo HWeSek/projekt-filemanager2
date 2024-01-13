@@ -1,4 +1,4 @@
 # projekt-filemanager
 Projekt do DS-a
 
-Dużo bezsensownych rozwiązań, ale punkciki wlecą!
+Druga część projektu. Tym razem funkcjonalność ma sens
