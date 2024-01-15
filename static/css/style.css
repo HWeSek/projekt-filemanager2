@@ -60,11 +60,13 @@ main {
     margin: 10px;
     border: 2px solid black;
     text-align: center;
-    width: 100px;
     height: 100px;
     border-radius: 5px;
     font-weight: bold;
     padding-top: 5px;
+    min-width: 100px;
+    max-width: 150px;
+
 }
 .dirbox {
     background-color: bisque;
@@ -82,4 +84,10 @@ main {
 
 .delete-btn:hover {
     background-color: rgb(219, 50, 50);
+}
+
+.name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
