@@ -68,14 +68,17 @@ const formidable = require('formidable');
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
-app.get("/", function (req, res) {
+app.get('/', function (req, res) {
+    let root = '/'
     let files_array = [];
     let dirs_array = [];
-    fs.readdir(path.join(__dirname, 'upload'), (err, files) => {
+    if (req.query.path != undefined) {
+        root = req.query.path;
+    }
+    fs.readdir(path.join(__dirname, 'upload', root), (err, files) => {
         if (err) throw err
         files.forEach((file) => {
-            fs.lstat(path.join(__dirname, 'upload', file), (err, stats) => {
+            fs.lstat(path.join(__dirname, 'upload', root, file), (err, stats) => {
                 if (stats.isDirectory()) {
                     dirs_array.push({ name: file, type: 'dir' })
                 } else {
@@ -83,13 +86,14 @@ app.get("/", function (req, res) {
                 }
             })
         })
-        res.render('index.hbs', { files_array, dirs_array });
+        res.render('index.hbs', { files_array, dirs_array, root: root });
     })
 })
 
 app.get("/addFolder", function (req, res) {
     let name = req.query.name;
-    if (!fs.existsSync(path.join(__dirname, 'upload', name))) {
+    let root = req.query.root;
+    if (!fs.existsSync(path.join(__dirname, 'upload', (root + name)))) {
         fs.mkdir(path.join(__dirname, 'upload', name), (err) => {
             if (err) throw err
         })
@@ -99,7 +103,8 @@ app.get("/addFolder", function (req, res) {
 
 app.get("/addFile", function (req, res) {
     let name = req.query.name;
-    if (!fs.existsSync(path.join(__dirname, 'upload', name))) {
+    let root = req.query.root;
+    if (!fs.existsSync(path.join(__dirname, 'upload', (root + name)))) {
         fs.writeFile(path.join(__dirname, 'upload', name), String(new Date().getMilliseconds()), (err) => {
             if (err) throw err
         })
@@ -122,7 +127,7 @@ app.get("/deleteFolder", function (req, res) {
     let name = req.query.name;
     if (fs.existsSync(path.join(__dirname, 'upload', name))) {
 
-        fs.rmdir(path.join(__dirname, 'upload', name), (err) => {
+        fs.rmSync(path.join(__dirname, 'upload', name), { recursive: true, force: true }, (err) => {
             if (err) throw err
         })
     }
@@ -137,7 +142,6 @@ app.post("/", function (req, res) {
     form.multiples = true
 
     form.parse(req, function (err, fields, files) {
-        console.log(files);
     });
     res.redirect('/')
 })

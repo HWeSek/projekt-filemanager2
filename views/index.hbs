@@ -3,6 +3,7 @@
 <dialog id="newFolder">
     <h3>Tworzenie nowego folderu</h3>
     <form method="get" action="/addFolder">
+        <input type="hidden" name="root" value="{{ root }}">
         <input type="text" name="name">
         <button type="submit">Ok</button>
     </form>
@@ -11,6 +12,7 @@
 <dialog id="newFile">
     <h3>Tworzenie nowego pliku tekstowego</h3>
     <form method="get" action="/addFile">
+        <input type="hidden" name="root" value="{{ root }}">
         <input type="text" name="name">
         <button type="submit">Ok</button>
     </form>
@@ -19,13 +21,16 @@
 
 <div class="d-flex">
     <aside>
-        <button class="btn btn-info btn-lg" onclick="document.getElementById('newFolder').showModal()">Nowy folder</button>
-        <button class="btn btn-info btn-lg" onclick="document.getElementById('newFile').showModal()">Nowy plik tekstowy</button>
-        <button class="btn btn-info btn-lg p-1" onclick="document.getElementById('fileSelect').click()">        
+        <button class="btn btn-info btn-lg" onclick="document.getElementById('newFolder').showModal()">Nowy
+            folder</button>
+        <button class="btn btn-info btn-lg" onclick="document.getElementById('newFile').showModal()">Nowy plik
+            tekstowy</button>
+        <button class="btn btn-info btn-lg p-1" onclick="document.getElementById('fileSelect').click()">
             <form class="m-0" action="/" method="post" enctype="multipart/form-data">
-                        Wybierz pliki
-                <input type="file" id="fileSelect" hidden class="form-control-file" required name="upload" multiple > 
-                <input type="submit" value="OK" style="float: right; background-color: gold; border-radius: 25%;" onclick="event.stopPropagation()">
+                Wybierz pliki
+                <input type="file" id="fileSelect" hidden class="form-control-file" required name="upload" multiple>
+                <input type="submit" value="OK" style="float: right; background-color: gold; border-radius: 25%;"
+                    onclick="event.stopPropagation()">
             </form>
         </button>
 
@@ -33,30 +38,30 @@
     </aside>
     <main>
         {{!-- VIEW --}}
-
+        <p style="text-decoration:underline;">Home</p>
+        <hr>
         <div class="directories">
             {{#each dirs_array}}
-                <div class="dirbox">
-                    <form method="get" action="/deleteFolder">
-                    {{{fileImg type}}}
+            <div class="dirbox">
+                <form method="get" action="/deleteFolder">
+                    <a href="/?path={{../root}}/{{name}}">{{{fileImg type}}}</a>
                     <button type="submit" name="name" value="{{name}}" class="delete-btn">X</button>
-                    </form>
-                    <p class="name">{{name}}</p>
-                </div>
+                </form>
+                <p class="name">{{name}}</p>
+            </div>
             {{/each}}
         </div>
         <hr>
         <div class="files">
             {{#each files_array}}
-                <div class="filebox">
-                    <form method="get" action="/deleteFile">
+            <div class="filebox">
+                <form method="get" action="/deleteFile">
                     {{{fileImg type}}}
                     <button type="submit" name="name" value="{{name}}" class="delete-btn">X</button>
-                    </form>
-                    <p class="name">{{name}}</p>
-                </div>
+                </form>
+                <p class="name">{{name}}</p>
+            </div>
             {{/each}}
         </div>
     </main>
 </div>
-
