@@ -86,64 +86,112 @@ app.get('/', function (req, res) {
                 }
             })
         })
-        res.render('index.hbs', { files_array, dirs_array, root: root });
     })
+    files_array.sort((a, b) => {
+        let namea = a.name.toLowerCase(),
+            nameb = b.name.toLowerCase();
+
+        if (namea < nameb) {
+            return -1;
+        }
+        if (namea > nameb) {
+            return 1;
+        }
+        return 0;
+    });
+    dirs_array.sort((a, b) => {
+        let namea = a.name.toLowerCase(),
+            nameb = b.name.toLowerCase();
+
+        if (namea < nameb) {
+            return -1;
+        }
+        if (namea > nameb) {
+            return 1;
+        }
+        return 0;
+    });
+    res.render('index.hbs', { files_array, dirs_array, root: root });
+
 })
 
 app.get("/addFolder", function (req, res) {
     let name = req.query.name;
     let root = req.query.root;
-    if (!fs.existsSync(path.join(__dirname, 'upload', (root + name)))) {
-        fs.mkdir(path.join(__dirname, 'upload', name), (err) => {
+    if (!fs.existsSync(path.join(__dirname, 'upload', (root + '/' + name)))) {
+        fs.mkdir(path.join(__dirname, 'upload', (root + '/' + name)), (err) => {
             if (err) throw err
         })
     }
-    res.redirect('/')
+    res.redirect(`/?path=${root}`)
 })
 
 app.get("/addFile", function (req, res) {
     let name = req.query.name;
     let root = req.query.root;
-    if (!fs.existsSync(path.join(__dirname, 'upload', (root + name)))) {
-        fs.writeFile(path.join(__dirname, 'upload', name), String(new Date().getMilliseconds()), (err) => {
+    if (!fs.existsSync(path.join(__dirname, 'upload', (root + '/' + name)))) {
+        fs.writeFile(path.join(__dirname, 'upload', (root + '/' + name)), String(new Date().getMilliseconds()), (err) => {
             if (err) throw err
         })
     }
-    res.redirect('/')
+    res.redirect(`/?path=${root}`)
 })
 
 app.get("/deleteFile", function (req, res) {
     let name = req.query.name;
-    if (fs.existsSync(path.join(__dirname, 'upload', name))) {
+    let root = req.query.root;
+    if (fs.existsSync(path.join(__dirname, 'upload', (root + '/' + name)))) {
 
-        fs.unlink(path.join(__dirname, 'upload', name), (err) => {
+        fs.unlink(path.join(__dirname, 'upload', (root + '/' + name)), (err) => {
             if (err) throw err
         })
     }
-    res.redirect('/')
+    res.redirect(`/?path=${root}`)
 })
 
 app.get("/deleteFolder", function (req, res) {
     let name = req.query.name;
-    if (fs.existsSync(path.join(__dirname, 'upload', name))) {
+    let root = req.query.root;
+    if (fs.existsSync(path.join(__dirname, 'upload', (root + '/' + name)))) {
 
-        fs.rmSync(path.join(__dirname, 'upload', name), { recursive: true, force: true }, (err) => {
+        fs.rmSync(path.join(__dirname, 'upload', (root + '/' + name)), { recursive: true, force: true }, (err) => {
             if (err) throw err
         })
     }
-    res.redirect('/')
+    res.redirect(`/?path=${root}`)
 })
 
 app.post("/", function (req, res) {
+    let root;
     let form = formidable({});
-
-    form.uploadDir = __dirname + '/upload/';
     form.keepExtensions = true;
-    form.multiples = true
-
+    form.multiples = true;
+    form.uploadDir = path.join(__dirname, 'upload');
     form.parse(req, function (err, fields, files) {
+        root = fields.root;
+
+        if (Array.isArray(files.upload)) {
+            files.upload.forEach(file => {
+                if (!fs.existsSync(path.join(__dirname, 'upload', (root + '/' + file.name)))) {
+                    fs.rename(file.path, path.join(__dirname, 'upload', (root + '/' + file.name)), (err) => {
+                        if (err) console.log(err)
+                        else {
+                        }
+                    })
+                }
+            })
+        }
+        if (!Array.isArray(files.upload)) {
+            if (!fs.existsSync(path.join(__dirname, 'upload', (root + '/' + files.upload.name)))) {
+                fs.rename(files.upload.path, path.join(__dirname, 'upload', (root + '/' + files.upload.name)), (err) => {
+                    if (err) console.log(err)
+                    else {
+                    }
+                })
+            }
+        }
+        res.redirect('/');
     });
-    res.redirect('/')
 })
 
 app.use(express.static('static'));

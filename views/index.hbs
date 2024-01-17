@@ -25,9 +25,11 @@
             folder</button>
         <button class="btn btn-info btn-lg" onclick="document.getElementById('newFile').showModal()">Nowy plik
             tekstowy</button>
+
         <button class="btn btn-info btn-lg p-1" onclick="document.getElementById('fileSelect').click()">
             <form class="m-0" action="/" method="post" enctype="multipart/form-data">
                 Wybierz pliki
+                <input type="hidden" name="root" value="{{ root }}">
                 <input type="file" id="fileSelect" hidden class="form-control-file" required name="upload" multiple>
                 <input type="submit" value="OK" style="float: right; background-color: gold; border-radius: 25%;"
                     onclick="event.stopPropagation()">
@@ -38,13 +40,16 @@
     </aside>
     <main>
         {{!-- VIEW --}}
-        <p style="text-decoration:underline;">Home</p>
+        
+        <p style="text-decoration:underline;">Home > {{ root }} </p>
+
         <hr>
         <div class="directories">
             {{#each dirs_array}}
             <div class="dirbox">
                 <form method="get" action="/deleteFolder">
                     <a href="/?path={{../root}}/{{name}}">{{{fileImg type}}}</a>
+                    <input type="hidden" name="root" value="{{ ../root }}">
                     <button type="submit" name="name" value="{{name}}" class="delete-btn">X</button>
                 </form>
                 <p class="name">{{name}}</p>
@@ -57,6 +62,7 @@
             <div class="filebox">
                 <form method="get" action="/deleteFile">
                     {{{fileImg type}}}
+                    <input type="hidden" name="root" value="{{ ../root }}">
                     <button type="submit" name="name" value="{{name}}" class="delete-btn">X</button>
                 </form>
                 <p class="name">{{name}}</p>
