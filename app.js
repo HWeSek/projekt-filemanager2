@@ -5,7 +5,7 @@ const path = require("path")
 const fs = require("fs")
 const mime = require('mime-types')
 
-let imghelper = function (type) {
+const imghelper = function (type) {
     let src;
     switch (type) {
         case "audio/x-flac":
@@ -51,6 +51,13 @@ let imghelper = function (type) {
     return `<img src="gfx/icons/${src}" width="36" alt="${type}">`
 }
 
+const pathHelper = function (current, root) {
+    let path = root.split('/');
+    path.splice(path.indexOf(current) + 1, path.length);
+
+    return path.join('/')
+}
+
 const hbs = require('express-handlebars');
 app.set('views', path.join(__dirname, 'views'));
 app.engine('hbs', hbs({
@@ -58,7 +65,8 @@ app.engine('hbs', hbs({
     defaultLayout: 'main',
     partialsDir: __dirname + '/views/partials/',
     helpers: {
-        fileImg: imghelper
+        fileImg: imghelper,
+        pathTo: pathHelper
     }
 }));
 
@@ -70,11 +78,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', function (req, res) {
     let root = '/'
+    let path_array = []
     let files_array = [];
     let dirs_array = [];
     if (req.query.path != undefined) {
         root = req.query.path;
     }
+    ////Tworzenie tablicy ze ścieżki 
+    path_array = root.split('/').splice(2, root.split('/').length)
+    // console.log(path_array);
+
     fs.readdir(path.join(__dirname, 'upload', root), (err, files) => {
         if (err) throw err
         files.forEach((file) => {
@@ -87,31 +100,31 @@ app.get('/', function (req, res) {
             })
         })
     })
-    files_array.sort((a, b) => {
-        let namea = a.name.toLowerCase(),
-            nameb = b.name.toLowerCase();
+    // files_array.sort((a, b) => {
+    //     let namea = a.name.toLowerCase(),
+    //         nameb = b.name.toLowerCase();
 
-        if (namea < nameb) {
-            return -1;
-        }
-        if (namea > nameb) {
-            return 1;
-        }
-        return 0;
-    });
-    dirs_array.sort((a, b) => {
-        let namea = a.name.toLowerCase(),
-            nameb = b.name.toLowerCase();
+    //     if (namea < nameb) {
+    //         return -1;
+    //     }
+    //     if (namea > nameb) {
+    //         return 1;
+    //     }
+    //     return 0;
+    // });
+    // dirs_array.sort((a, b) => {
+    //     let namea = a.name.toLowerCase(),
+    //         nameb = b.name.toLowerCase();
 
-        if (namea < nameb) {
-            return -1;
-        }
-        if (namea > nameb) {
-            return 1;
-        }
-        return 0;
-    });
-    res.render('index.hbs', { files_array, dirs_array, root: root });
+    //     if (namea < nameb) {
+    //         return -1;
+    //     }
+    //     if (namea > nameb) {
+    //         return 1;
+    //     }
+    //     return 0;
+    // });
+    res.render('index.hbs', { files_array, dirs_array, root: root, path_array });
 
 })
 
@@ -129,8 +142,41 @@ app.get("/addFolder", function (req, res) {
 app.get("/addFile", function (req, res) {
     let name = req.query.name;
     let root = req.query.root;
+    let file_type = name.split('.')[1]
+    let contents = '';
+    console.log(file_type);
     if (!fs.existsSync(path.join(__dirname, 'upload', (root + '/' + name)))) {
-        fs.writeFile(path.join(__dirname, 'upload', (root + '/' + name)), String(new Date().getMilliseconds()), (err) => {
+
+        switch (file_type) {
+            case 'html':
+                contents = `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Document</title>
+                </head>
+                <body>
+                    
+                </body>
+                </html>`
+                break;
+            case 'js':
+                contents = `document.body.style.backgroundColor = green;`
+                break;
+            case 'css':
+                contents = `*{box-sizing: border-box}`
+                break;
+            case 'json':
+                contents = `{"x": 1, "y": 0}`
+            default:
+                contents = String(new Date().getMilliseconds());
+                break;
+        }
+
+        fs.writeFile(path.join(__dirname, 'upload', (root + '/' + name)), contents, (err) => {
             if (err) throw err
         })
     }
@@ -159,6 +205,30 @@ app.get("/deleteFolder", function (req, res) {
         })
     }
     res.redirect(`/?path=${root}`)
+})
+
+app.get("/rnFolder", function (req, res) {
+    let name = req.query.name;
+    let root = req.query.root;
+    let new_path = root.split('/');
+    new_path[new_path.length - 1] = name;
+    new_path = new_path.join('/')
+    if (root != '/') {
+        if (fs.existsSync(path.join(__dirname, 'upload', root))) {
+            fs.rename(path.join(__dirname, 'upload', root), path.join(__dirname, 'upload', new_path), (err) => {
+                if (err) console.log(err)
+                else {
+                }
+            })
+        }
+        res.redirect(`/?path=${new_path}`)
+    }
+})
+
+app.get('/fileEditor', function (req, res) {
+    let root = req.query.name;
+
+    res.render('editor.hbs', { root });
 })
 
 app.post("/", function (req, res) {

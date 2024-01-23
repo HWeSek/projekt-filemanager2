@@ -19,12 +19,24 @@
     <button type="button" onclick="document.getElementById('newFile').close()">Cancel</button>
 </dialog>
 
+<dialog id="rnFolder">
+    <h3>Zmień nazwę folderu</h3>
+    <form method="get" action="/rnFolder">
+        <input type="hidden" name="root" value="{{ root }}">
+        <input type="text" name="name">
+        <button type="submit">Ok</button>
+    </form>
+    <button type="button" onclick="document.getElementById('rnFolder').close()">Cancel</button>
+</dialog>
+
 <div class="d-flex">
     <aside>
         <button class="btn btn-info btn-lg" onclick="document.getElementById('newFolder').showModal()">Nowy
             folder</button>
         <button class="btn btn-info btn-lg" onclick="document.getElementById('newFile').showModal()">Nowy plik
             tekstowy</button>
+        <button class="btn btn-info btn-lg" onclick="document.getElementById('rnFolder').showModal()">Zmień nazwę
+            folderu</button>
 
         <button class="btn btn-info btn-lg p-1" onclick="document.getElementById('fileSelect').click()">
             <form class="m-0" action="/" method="post" enctype="multipart/form-data">
@@ -40,8 +52,10 @@
     </aside>
     <main>
         {{!-- VIEW --}}
-        
-        <p style="text-decoration:underline;">Home > {{ root }} </p>
+
+        <p id="path_line"><a href="/">Home</a> {{#each path_array}} > <a
+                href="?path={{pathTo this ../root}}">{{this}}</a>
+            {{/each}}</p>
 
         <hr>
         <div class="directories">
@@ -61,7 +75,7 @@
             {{#each files_array}}
             <div class="filebox">
                 <form method="get" action="/deleteFile">
-                    {{{fileImg type}}}
+                    <a href="/fileEditor?name={{../root}}/{{name}}">{{{fileImg type}}}</a>
                     <input type="hidden" name="root" value="{{ ../root }}">
                     <button type="submit" name="name" value="{{name}}" class="delete-btn">X</button>
                 </form>
