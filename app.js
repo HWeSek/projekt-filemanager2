@@ -75,6 +75,7 @@ app.set('view engine', 'hbs');
 const formidable = require('formidable');
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json())
 
 app.get('/', function (req, res) {
     let root = '/'
@@ -161,8 +162,7 @@ app.get("/addFile", function (req, res) {
 <body>
     
 </body>
-</html>
-`
+</html>`
                 break;
             case 'js':
                 contents = `document.body.style.backgroundColor = green;`
@@ -170,8 +170,22 @@ app.get("/addFile", function (req, res) {
             case 'css':
                 contents = `*{box-sizing: border-box}`
                 break;
+            case 'txt':
+                contents = `Ala ma kota 123!`
+                break;
             case 'json':
                 contents = `{"x": 1, "y": 0}`
+                break;
+            case 'xml':
+                contents = `
+<?xml version="1.0" encoding="UTF-8"?>
+<note>
+  <to>Tove</to>
+  <from>Jani</from>
+  <heading>Reminder</heading>
+  <body>Don't forget me this weekend!</body>
+</note>`
+                break;
             default:
                 contents = String(new Date().getMilliseconds());
                 break;
@@ -244,7 +258,6 @@ app.get('/fileEditor', function (req, res) {
 app.get('/saveFile', function (req, res) {
     let content = req.query.content;
     let root = req.query.root;
-    console.log(content);
     fs.writeFile(path.join(__dirname, 'upload', root), content, (err) => {
         if (err) throw err;
         res.redirect(`/fileEditor?name=${root}`)
@@ -267,6 +280,14 @@ app.get("/rnFile", function (req, res) {
         }
         res.redirect(`/fileEditor?name=${new_path}`)
     }
+})
+
+app.post("/saveSettings", function (req, res) {
+    fs.writeFile(path.join(__dirname, 'static', 'data', 'editor-settings.json'), JSON.stringify(req.body), (err) => {
+        if (err) throw err;
+        console.log('zapisano');
+        res.send('zapisano');
+    })
 })
 
 app.post("/", function (req, res) {
