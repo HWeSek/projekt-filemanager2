@@ -110,13 +110,3 @@ main {
     text-decoration: underline;
 }
 
-#file_header {
-    background-color: rgb(68, 68, 68);
-    font-weight: bold;
-    padding: 5px;
-    padding-left: 20px;
-    letter-spacing: 1.5px;
-    color: whitesmoke;
-    width: 100%;
-    height: fit-content;
-}

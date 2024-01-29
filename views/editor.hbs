@@ -1,22 +1,50 @@
 <link rel="stylesheet" href="css/editor.css">
+<script>
+    window.onload = function(){
 
+        let area = document.getElementById('text_area')
+        let enters = area.value.split("\n").length;
+        document.getElementById('line_num').value = '';
+        for(let i = 1; i <= enters; i++) document.getElementById('line_num').value += (i+"\n");
+
+
+        area.onkeyup = function(){
+            document.getElementById('line_num').scrollTo(0, area.scrollTop);
+            let enters = area.value.split("\n").length;
+             document.getElementById('line_num').value = ''
+            for(let i = 1; i <= enters; i++){
+                document.getElementById('line_num').value += (i+"\n")
+            }
+        }
+
+        area.onscroll = function(){
+            document.getElementById('line_num').scrollTo(0, area.scrollTop);
+        }
+    }
+</script>
 <div class="d-flex">
     <aside>
-        <button class="btn btn-info btn-lg">Nowy
-            folder</button>
-        <button class="btn btn-info btn-lg">Nowy plik
-            tekstowy</button>
-        <button class="btn btn-info btn-lg">Zmień nazwę
-            pliku</button>
-
-        <button class="btn btn-info btn-lg p-1">
-
-        </button>
+        <div class="mt-4 d-flex align-items-center justify-content-center p-0" style="width: 230px!important; margin-left: 10px">
+            <button class="editor-settings-button" style="border-top-left-radius: 20%; border-bottom-left-radius: 20%; ;background-color: yellow;" >Font -</button>
+            <button class="editor-settings-button" style="background-color: rgb(226, 173, 38);" >Kolory</button>
+            <button class="editor-settings-button" style="border-top-right-radius: 20%; border-bottom-right-radius: 20%;background-color: orange;" >Font +</button>
+        </div>
+        <button class="btn btn-warning btn-lg">Zapisz ustawienia</button>
+        <button class="btn btn-warning btn-lg">Zmień nazwę
+            Pliku</button>
+        <button class="btn btn-info btn-lg">Podgląd
+            Pliku</button>
 
 
     </aside>
-    <main style="padding: 0;">
+    <main style="padding: 0; display: flex; flex-direction: column;" >
         <div id="file_header">{{root}}</div>
-
+        <div class="d-flex" style="height: 100vh;">
+            <div id="lines"><textarea id="line_num" disabled></textarea></div>
+            <textarea id="text_area" name="content" form="save_form">{{contents}}</textarea>
+        </div>
+        <div id="save-file-footer"><form id="save_form" method="get" action="/saveFile">
+        <button class="btn btn-lg btn-success">ZAPISZ PLIK</button>
+        </form></div>
     </main>
 </div>

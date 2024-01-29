@@ -149,19 +149,21 @@ app.get("/addFile", function (req, res) {
 
         switch (file_type) {
             case 'html':
-                contents = `
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Document</title>
-                </head>
-                <body>
-                    
-                </body>
-                </html>`
+                contents =
+                    `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+</html>
+`
                 break;
             case 'js':
                 contents = `document.body.style.backgroundColor = green;`
@@ -227,8 +229,16 @@ app.get("/rnFolder", function (req, res) {
 
 app.get('/fileEditor', function (req, res) {
     let root = req.query.name;
+    if (fs.existsSync(path.join(__dirname, 'upload', root))) {
+        fs.readFile(path.join(__dirname, 'upload', root), "utf-8", (err, data) => {
+            if (err) console.log(err)
+            else {
+                const contents = data.toString();
+                res.render('editor.hbs', { root, contents })
+            }
+        })
+    }
 
-    res.render('editor.hbs', { root });
 })
 
 app.post("/", function (req, res) {
