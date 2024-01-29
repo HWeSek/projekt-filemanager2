@@ -4,7 +4,7 @@
     <h3>Tworzenie nowego folderu</h3>
     <form method="get" action="/addFolder">
         <input type="hidden" name="root" value="{{ root }}">
-        <input type="text" name="name">
+        <input type="text" name="name" required>
         <button type="submit">Ok</button>
     </form>
     <button type="button" onclick="document.getElementById('newFolder').close()">Cancel</button>
@@ -13,7 +13,7 @@
     <h3>Tworzenie nowego pliku tekstowego</h3>
     <form method="get" action="/addFile">
         <input type="hidden" name="root" value="{{ root }}">
-        <input type="text" name="name">
+        <input type="text" name="name" required>
         <button type="submit">Ok</button>
     </form>
     <button type="button" onclick="document.getElementById('newFile').close()">Cancel</button>
@@ -23,7 +23,7 @@
     <h3>Zmień nazwę folderu</h3>
     <form method="get" action="/rnFolder">
         <input type="hidden" name="root" value="{{ root }}">
-        <input type="text" name="name">
+        <input type="text" name="name" required>
         <button type="submit">Ok</button>
     </form>
     <button type="button" onclick="document.getElementById('rnFolder').close()">Cancel</button>

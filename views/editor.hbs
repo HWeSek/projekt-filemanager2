@@ -1,4 +1,5 @@
 <link rel="stylesheet" href="css/editor.css">
+<link rel="stylesheet" href="css/editor-themes.css">
 <script>
     window.onload = function(){
 
@@ -22,7 +23,7 @@
         }
 
 
-        //////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////FONT_SIZE////////////////////////////////////////////
         function fontSize(dir){
             let font_size = parseInt(window.getComputedStyle(document.getElementById("text_area")).fontSize)
             if(dir == 1){
@@ -38,9 +39,29 @@
 
         document.getElementById('fontD').addEventListener('click', ()=>{ fontSize(0) })
         document.getElementById('fontU').addEventListener('click', ()=>{ fontSize(1) })
-
+        //////////////////////////////////THEMES/////////////////////////////////////////
+        const themes = ['default-theme','dark-theme','tokio-theme'];
+        let cycle = 0;
+        document.getElementById('themeCh').addEventListener('click', ()=>{ 
+            cycle++;
+            document.getElementById('line_num').className = themes[cycle];
+            document.getElementById('text_area').className = themes[cycle];
+            document.getElementById('lines').className = themes[cycle];
+            cycle = cycle%3;
+        })
     }
 </script>
+
+<dialog id="rnFile">
+    <h3>Zmień nazwę pliku</h3>
+    <form method="get" action="/rnFile">
+        <input type="hidden" name="root" value="{{ root }}">
+        <input type="text" name="name" required>
+        <button type="submit">Ok</button>
+    </form>
+    <button type="button" onclick="document.getElementById('rnFile').close()">Cancel</button>
+</dialog>
+
 <div class="d-flex">
     <aside>
         <div class="mt-4 d-flex align-items-center justify-content-center p-0" style="width: 230px!important; margin-left: 10px">
@@ -49,8 +70,7 @@
             <button class="editor-settings-button" id="fontU" style="border-top-right-radius: 20%; border-bottom-right-radius: 20%;background-color: orange;">Font +</button>
         </div>
         <button class="btn btn-secondary btn-lg">Zapisz ustawienia</button>
-        <button class="btn btn-warning btn-lg">Zmień nazwę
-            Pliku</button>
+        <button class="btn btn-warning btn-lg" onclick="document.getElementById('rnFile').showModal()">Zmień nazwę pliku</button>
         <button class="btn btn-info btn-lg">Podgląd
             Pliku</button>
 

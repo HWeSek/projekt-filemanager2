@@ -1,0 +1,14 @@
+.default-theme {
+    background-color: white;
+    color: black;
+}
+
+.dark-theme {
+    background-color: rgb(36, 36, 36);
+    color: whitesmoke;
+}
+
+.tokio-theme {
+    background-color: rgb(64, 61, 65);
+    color: rgb(236, 152, 208);
+}

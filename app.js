@@ -251,6 +251,23 @@ app.get('/saveFile', function (req, res) {
     })
 })
 
+app.get("/rnFile", function (req, res) {
+    let name = req.query.name;
+    let root = req.query.root;
+    let new_path = root.split('/');
+    new_path[new_path.length - 1] = name;
+    new_path = new_path.join('/')
+    if (root != '/') {
+        if (fs.existsSync(path.join(__dirname, 'upload', root))) {
+            fs.rename(path.join(__dirname, 'upload', root), path.join(__dirname, 'upload', new_path), (err) => {
+                if (err) console.log(err)
+                else {
+                }
+            })
+        }
+        res.redirect(`/fileEditor?name=${new_path}`)
+    }
+})
 
 app.post("/", function (req, res) {
     let root;
