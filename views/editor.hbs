@@ -20,16 +20,35 @@
         area.onscroll = function(){
             document.getElementById('line_num').scrollTo(0, area.scrollTop);
         }
+
+
+        //////////////////////////////////////////////////////////////////////////////////////////
+        function fontSize(dir){
+            let font_size = parseInt(window.getComputedStyle(document.getElementById("text_area")).fontSize)
+            if(dir == 1){
+                console.log('up')
+                document.getElementById('line_num').style.fontSize = `${font_size + 1}px`
+                document.getElementById('text_area').style.fontSize = `${font_size + 1}px`
+            }else if (dir == 0){
+                console.log('down')
+                document.getElementById('line_num').style.fontSize = `${font_size - 1}px`
+                document.getElementById('text_area').style.fontSize = `${font_size - 1}px`
+            }
+        }
+
+        document.getElementById('fontD').addEventListener('click', ()=>{ fontSize(0) })
+        document.getElementById('fontU').addEventListener('click', ()=>{ fontSize(1) })
+
     }
 </script>
 <div class="d-flex">
     <aside>
         <div class="mt-4 d-flex align-items-center justify-content-center p-0" style="width: 230px!important; margin-left: 10px">
-            <button class="editor-settings-button" style="border-top-left-radius: 20%; border-bottom-left-radius: 20%; ;background-color: yellow;" >Font -</button>
-            <button class="editor-settings-button" style="background-color: rgb(226, 173, 38);" >Kolory</button>
-            <button class="editor-settings-button" style="border-top-right-radius: 20%; border-bottom-right-radius: 20%;background-color: orange;" >Font +</button>
+            <button class="editor-settings-button" id="fontD" style="border-top-left-radius: 20%; border-bottom-left-radius: 20%; ;background-color: yellow;">Font -</button>
+            <button class="editor-settings-button" id="themeCh" style="background-color: rgb(226, 173, 38);" >Kolory</button>
+            <button class="editor-settings-button" id="fontU" style="border-top-right-radius: 20%; border-bottom-right-radius: 20%;background-color: orange;">Font +</button>
         </div>
-        <button class="btn btn-warning btn-lg">Zapisz ustawienia</button>
+        <button class="btn btn-secondary btn-lg">Zapisz ustawienia</button>
         <button class="btn btn-warning btn-lg">Zmień nazwę
             Pliku</button>
         <button class="btn btn-info btn-lg">Podgląd
@@ -43,8 +62,10 @@
             <div id="lines"><textarea id="line_num" disabled></textarea></div>
             <textarea id="text_area" name="content" form="save_form">{{contents}}</textarea>
         </div>
-        <div id="save-file-footer"><form id="save_form" method="get" action="/saveFile">
-        <button class="btn btn-lg btn-success">ZAPISZ PLIK</button>
+        <div id="save-file-footer">
+        <form id="save_form" method="get" action="/saveFile">
+            <input type="hidden" name="root" value="{{root}}">
+            <button class="btn btn-lg btn-success">ZAPISZ ZMIANY</button>
         </form></div>
     </main>
 </div>

@@ -144,7 +144,6 @@ app.get("/addFile", function (req, res) {
     let root = req.query.root;
     let file_type = name.split('.')[1]
     let contents = '';
-    console.log(file_type);
     if (!fs.existsSync(path.join(__dirname, 'upload', (root + '/' + name)))) {
 
         switch (file_type) {
@@ -240,6 +239,18 @@ app.get('/fileEditor', function (req, res) {
     }
 
 })
+
+
+app.get('/saveFile', function (req, res) {
+    let content = req.query.content;
+    let root = req.query.root;
+    console.log(content);
+    fs.writeFile(path.join(__dirname, 'upload', root), content, (err) => {
+        if (err) throw err;
+        res.redirect(`/fileEditor?name=${root}`)
+    })
+})
+
 
 app.post("/", function (req, res) {
     let root;
