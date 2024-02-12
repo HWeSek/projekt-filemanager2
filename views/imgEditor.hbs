@@ -1,0 +1,34 @@
+<link rel="stylesheet" href="css/imgEditor.css">
+{{!-- --}}
+<dialog id="rnFile">
+    <h3>Zmień nazwę pliku</h3>
+    <form method="get" action="/rnFile">
+        <input type="hidden" name="root" value="{{ root }}">
+        <input type="text" name="name" required>
+        <button type="submit">Ok</button>
+    </form>
+    <button type="button" onclick="document.getElementById('rnFile').close()">Cancel</button>
+</dialog>
+
+<div class="d-flex">
+    <aside>
+        <button class="btn btn-warning">Filtry</button>
+    </aside>
+    <main style="padding: 0; display: flex; flex-direction: column;">
+        <div id="file_header">{{root}}</div>
+        <div id="image-container">
+            <div id="display" style="background-image:url('.{{root}}');"></div>
+        </div>
+        <div id="save-file-footer">
+
+            <form id="save_form" method="get" action="/saveFile">
+                <input type="hidden" name="root" value="{{root}}">
+                <button class="btn btn-lg btn-success">ZAPISZ ZMIANY</button>
+            </form>
+
+            <button class="btn btn-warning btn-lg" onclick="document.getElementById('rnFile').showModal()">Zmień nazwę
+                pliku</button>
+            <button class="btn btn-info btn-lg">Podgląd Pliku</button>
+        </div>
+    </main>
+</div>

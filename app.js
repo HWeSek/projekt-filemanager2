@@ -74,6 +74,7 @@ app.set('view engine', 'hbs');
 
 const formidable = require('formidable');
 const bodyParser = require('body-parser');
+const { log } = require('console');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json())
 
@@ -240,20 +241,36 @@ app.get("/rnFolder", function (req, res) {
     }
 })
 
+//////////////////////EDYTOR PLIKÓW!////////////////////////
 app.get('/fileEditor', function (req, res) {
     let root = req.query.name;
     if (fs.existsSync(path.join(__dirname, 'upload', root))) {
         fs.readFile(path.join(__dirname, 'upload', root), "utf-8", (err, data) => {
             if (err) console.log(err)
             else {
-                const contents = data.toString();
-                res.render('editor.hbs', { root, contents })
+                const type = mime.lookup(path.join(__dirname, 'upload', root)).split('/')[0];
+                let fileName;
+                let contents = {};
+                //console.log(type);
+                if (type == "image") {
+                    fileName = "imgEditor.hbs"
+                    const effects = [
+                        { name: "grayscale" },
+                        { name: "invert" },
+                        { name: "sepia" }
+                    ]
+                    contents.effects = effects;
+                } else {
+                    fileName = "editor.hbs"
+                    contents = data.toString();
+                }
+                res.render(fileName, { root, contents })
             }
         })
     }
 
 })
-
+//////////////////////////////////////////////////////////////////
 
 app.get('/saveFile', function (req, res) {
     let content = req.query.content;
@@ -324,6 +341,7 @@ app.post("/", function (req, res) {
 })
 
 app.use(express.static('static'));
+app.use(express.static('upload'));
 app.listen(PORT, function () {
     console.log(`Serwer działa na porcie: ${PORT}`)
 })
