@@ -4,6 +4,7 @@ const PORT = 3000;
 const path = require("path")
 const fs = require("fs")
 const mime = require('mime-types')
+const formData = require("express-form-data");
 
 const imghelper = function (type) {
     let src;
@@ -76,7 +77,10 @@ const formidable = require('formidable');
 const bodyParser = require('body-parser');
 const { log } = require('console');
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.raw({ type: 'image/*', limit: '10mb' }));
 app.use(express.json())
+
+
 
 app.get('/', function (req, res) {
     let root = '/'
@@ -102,30 +106,7 @@ app.get('/', function (req, res) {
             })
         })
     })
-    // files_array.sort((a, b) => {
-    //     let namea = a.name.toLowerCase(),
-    //         nameb = b.name.toLowerCase();
 
-    //     if (namea < nameb) {
-    //         return -1;
-    //     }
-    //     if (namea > nameb) {
-    //         return 1;
-    //     }
-    //     return 0;
-    // });
-    // dirs_array.sort((a, b) => {
-    //     let namea = a.name.toLowerCase(),
-    //         nameb = b.name.toLowerCase();
-
-    //     if (namea < nameb) {
-    //         return -1;
-    //     }
-    //     if (namea > nameb) {
-    //         return 1;
-    //     }
-    //     return 0;
-    // });
     res.render('index.hbs', { files_array, dirs_array, root: root, path_array });
 
 })
@@ -276,27 +257,15 @@ app.get('/fileEditor', function (req, res) {
 
 })
 ////////////////////////////SAVE AND PREVIEW IMAGE/////////////////////////////////
-app.post('/dupa', function (req, res) {
-    const uploadedFile = req.body.image;
-    console.log(req.body.image);
-    // Send the file back to the browser
-    if (uploadedFile) {
-        const fileBuffer = uploadedFile.buffer; // Buffer containing the file data
-        const fileName = uploadedFile.originalname;
-
-        // Set the appropriate headers for the response
-        res.set({
-            'Content-Type': uploadedFile.mimetype,
-            'Content-Disposition': `attachment; filename=${fileName}`
-        });
-
-        // Send the file data back to the browser
-        res.send(fileBuffer);
-    } else {
-        res.status(400).send('No file uploaded.');
-    }
+app.post('/saveImg', function (req, res) {
+    let content = req.body.data
+    let root = req.body.path;
+    console.log(Buffer.from(content, 'base64'));
+    fs.writeFile(path.join(__dirname, 'upload', 'dupa.png'), Buffer.from(content, 'base64'), (err) => {
+        if (err) throw err;
+        res.redirect('/')
+    })
 })
-
 
 
 

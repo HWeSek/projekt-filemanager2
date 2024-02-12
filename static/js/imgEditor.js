@@ -20,23 +20,7 @@ window.onload = function () {
         }
     })
 
-    document.getElementById('previewBtn').onclick = () => {
-        console.log('działa');
-
-        // const options = {
-        //     method: "POST",
-        //     body: getFileSource()
-        // };
-        console.log(getFileSource());
-        // fetch('/dupa', options)
-        //     .then(response => response.text())
-        //     .then(data => {
-        //         console.log(data); // Response from the server
-        //     })
-        //     .catch(error => console.log(error));
-    }
-
-    function getFileSource() {
+    document.getElementById('saveBtn').onclick = () => {
         const canvas = document.createElement('canvas')
         const context = canvas.getContext('2d')
         const DOMdisplay = document.getElementById("display")
@@ -47,8 +31,30 @@ window.onload = function () {
         context.drawImage(image, 0, 0, image.width, image.height);
 
         canvas.toBlob((blob) => {
-            let form = new FormData()
-            form.append('image', blob, 'altered_img.png');
+            let reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = function () {
+                let data = reader.result;
+                console.log(data);
+                const toSend = {
+                    path: document.getElementById('path').value,
+                    data: data
+                }
+                const options = {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(toSend)
+                };
+                fetch('/saveImg', options)
+                    .then(response => response.blob())
+                    .then(data => {
+                        alert('Obrazek zapisany!')
+                    })
+                    .catch(error => console.log(error));
+            }
         })
     }
+
 }

@@ -33,13 +33,10 @@
         </div>
         <div id="save-file-footer">
 
-            <form id="save_form" method="get" action="/saveFile">
-                <input type="hidden" name="root" value="{{root}}">
-                <button class="btn btn-lg btn-success">ZAPISZ ZMIANY</button>
-            </form>
+            <input type="hidden" id="path" value="{{root}}">
+            <button class="btn btn-lg btn-success" id="saveBtn">ZAPISZ ZMIANY</button>
 
-            <button class="btn btn-warning btn-lg" onclick="document.getElementById('rnFile').showModal()">Zmień nazwę
-                pliku</button>
+            <button class="btn btn-warning btn-lg" onclick="document.getElementById('rnFile').showModal()">Zmień nazwę pliku</button>
             <button class="btn btn-info btn-lg" id="previewBtn">Podgląd Pliku</button>
         </div>
     </main>
