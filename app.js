@@ -53,7 +53,7 @@ const imghelper = function (type) {
 
 const pathHelper = function (current, root) {
     let path = root.split('/');
-    path.splice(path.indexOf(current) + 1, path.length);
+    path.splice(path.lastIndexOf(current) + 1, path.length);
 
     return path.join('/')
 }
@@ -248,7 +248,12 @@ app.get('/fileEditor', function (req, res) {
         fs.readFile(path.join(__dirname, 'upload', root), "utf-8", (err, data) => {
             if (err) console.log(err)
             else {
-                const type = mime.lookup(path.join(__dirname, 'upload', root)).split('/')[0];
+                let type;
+                try {
+                    type = mime.lookup(path.join(__dirname, 'upload', root)).split('/')[0];
+                } catch (error) {
+                    type = 'none';
+                }
                 let fileName;
                 let contents = {};
                 //console.log(type);
@@ -270,8 +275,32 @@ app.get('/fileEditor', function (req, res) {
     }
 
 })
-//////////////////////////////////////////////////////////////////
+////////////////////////////SAVE AND PREVIEW IMAGE/////////////////////////////////
+app.post('/dupa', function (req, res) {
+    const uploadedFile = req.body.image;
+    console.log(req.body.image);
+    // Send the file back to the browser
+    if (uploadedFile) {
+        const fileBuffer = uploadedFile.buffer; // Buffer containing the file data
+        const fileName = uploadedFile.originalname;
 
+        // Set the appropriate headers for the response
+        res.set({
+            'Content-Type': uploadedFile.mimetype,
+            'Content-Disposition': `attachment; filename=${fileName}`
+        });
+
+        // Send the file data back to the browser
+        res.send(fileBuffer);
+    } else {
+        res.status(400).send('No file uploaded.');
+    }
+})
+
+
+
+
+////////////////////////////////////////////////////////////////////
 app.get('/saveFile', function (req, res) {
     let content = req.query.content;
     let root = req.query.root;

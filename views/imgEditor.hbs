@@ -29,7 +29,7 @@
     <main style="padding: 0; display: flex; flex-direction: column;">
         <div id="file_header">{{root}}</div>
         <div id="image-container">
-            <div id="display" style="background-size: contain;background-image:url('.{{root}}');"></div>
+            <div id="display" style="background-image:url('.{{root}}');"></div>
         </div>
         <div id="save-file-footer">
 
@@ -40,7 +40,7 @@
 
             <button class="btn btn-warning btn-lg" onclick="document.getElementById('rnFile').showModal()">Zmień nazwę
                 pliku</button>
-            <button class="btn btn-info btn-lg">Podgląd Pliku</button>
+            <button class="btn btn-info btn-lg" id="previewBtn">Podgląd Pliku</button>
         </div>
     </main>
 </div>
