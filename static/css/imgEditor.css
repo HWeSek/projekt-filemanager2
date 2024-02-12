@@ -32,6 +32,7 @@
 
 aside {
     width: 110px;
+    text-align: center;
 }
 
 .btn {
@@ -51,4 +52,24 @@ aside {
     width: 500px;
     height: 500px;
     border: black 1px dashed;
+}
+
+#filters {
+    width: 0px;
+    transition: 0.5s;
+    background-color: rgb(61, 61, 58);
+    color: whitesmoke;
+    overflow: hidden;
+}
+
+#filter_icons {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-align: center;
+    align-items: center;
+}
+
+.previev {
+border-radius: 5px;width: 90px; height: 90px; cursor:pointer;
 }
