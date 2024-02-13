@@ -20,41 +20,39 @@ window.onload = function () {
         }
     })
 
-    document.getElementById('saveBtn').onclick = () => {
-        const canvas = document.createElement('canvas')
-        const context = canvas.getContext('2d')
-        const DOMdisplay = document.getElementById("display")
-        let image = new Image()
-        image.src = DOMdisplay.style.backgroundImage.slice(4, -1).replace(/"/g, "");
-        canvas.width = image.width;
-        canvas.height = image.height;
-        context.drawImage(image, 0, 0, image.width, image.height);
 
+
+    document.getElementById('saveBtn').onclick = () => {
+        let canvas = getCanvas()
         canvas.toBlob((blob) => {
-            let reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onloadend = function () {
-                let data = reader.result;
-                console.log(data);
-                const toSend = {
-                    path: document.getElementById('path').value,
-                    data: data
-                }
-                const options = {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(toSend)
-                };
-                fetch('/saveImg', options)
-                    .then(response => response.blob())
-                    .then(data => {
-                        alert('Obrazek zapisany!')
-                    })
-                    .catch(error => console.log(error));
-            }
+            let formData = new FormData();
+            formData.append('img', blob, 'altered_img.png')
+            formData.append('path', document.getElementById('path').value)
+            const options = {
+                method: "POST",
+                body: formData
+            };
+            fetch('/saveImg', options)
+                .then(response => response.text())
+                .then(data => {
+                    alert('Obrazek zapisany!')
+                })
+                .catch(error => console.log(error));
         })
     }
-
 }
+
+
+function getCanvas() {
+    const canvas = document.createElement('canvas')
+    const context = canvas.getContext('2d')
+    const DOMdisplay = document.getElementById("display")
+    let image = new Image()
+    image.src = DOMdisplay.style.backgroundImage.slice(4, -1).replace(/"/g, "");
+    canvas.width = image.width;
+    canvas.height = image.height;
+    context.filter = DOMdisplay.style.filter;
+    context.drawImage(image, 0, 0, image.width, image.height);
+    return canvas
+}
+

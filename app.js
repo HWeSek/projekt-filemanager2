@@ -4,7 +4,6 @@ const PORT = 3000;
 const path = require("path")
 const fs = require("fs")
 const mime = require('mime-types')
-const formData = require("express-form-data");
 
 const imghelper = function (type) {
     let src;
@@ -76,6 +75,7 @@ app.set('view engine', 'hbs');
 const formidable = require('formidable');
 const bodyParser = require('body-parser');
 const { log } = require('console');
+const { redirect } = require('statuses');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.raw({ type: 'image/*', limit: '10mb' }));
 app.use(express.json())
@@ -258,12 +258,12 @@ app.get('/fileEditor', function (req, res) {
 })
 ////////////////////////////SAVE AND PREVIEW IMAGE/////////////////////////////////
 app.post('/saveImg', function (req, res) {
-    let content = req.body.data
-    let root = req.body.path;
-    console.log(Buffer.from(content, 'base64'));
-    fs.writeFile(path.join(__dirname, 'upload', 'dupa.png'), Buffer.from(content, 'base64'), (err) => {
-        if (err) throw err;
-        res.redirect('/')
+    let form = formidable({});
+    form.keepExtensions = true;
+    form.parse(req, function (err, fields, files) {
+        fs.rename(files.img.path, path.join(__dirname, 'upload', fields.path), (err) => {
+            res.send('Zapisano pomyślnie!')
+        })
     })
 })
 
