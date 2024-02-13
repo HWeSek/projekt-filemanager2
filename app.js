@@ -257,7 +257,7 @@ app.get('/fileEditor', function (req, res) {
 
 })
 ////////////////////////////SAVE AND PREVIEW IMAGE/////////////////////////////////
-app.post('/saveImg', function (req, res) {
+app.post('/saveImage', function (req, res) {
     let form = formidable({});
     form.keepExtensions = true;
     form.parse(req, function (err, fields, files) {
@@ -267,6 +267,13 @@ app.post('/saveImg', function (req, res) {
     })
 })
 
+app.get('/previewFile', function (req, res) {
+    let root = req.query.name;
+    if (fs.existsSync(path.join(__dirname, 'upload', root))) {
+        res.sendFile(path.join(__dirname, 'upload', root))
+    }
+
+})
 
 
 ////////////////////////////////////////////////////////////////////

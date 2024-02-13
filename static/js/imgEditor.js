@@ -32,7 +32,7 @@ window.onload = function () {
                 method: "POST",
                 body: formData
             };
-            fetch('/saveImg', options)
+            fetch('/saveImage', options)
                 .then(response => response.text())
                 .then(data => {
                     alert('Obrazek zapisany!')
