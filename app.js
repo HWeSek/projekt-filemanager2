@@ -51,13 +51,6 @@ const imghelper = function (type) {
     return `<img src="gfx/icons/${src}" width="36" alt="${type}">`
 }
 
-const pathHelper = function (current, root) {
-    let path = root.split('/');
-    path.splice(path.lastIndexOf(current) + 1, path.length);
-
-    return path.join('/')
-}
-
 const hbs = require('express-handlebars');
 app.set('views', path.join(__dirname, 'views'));
 app.engine('hbs', hbs({
@@ -66,7 +59,6 @@ app.engine('hbs', hbs({
     partialsDir: __dirname + '/views/partials/',
     helpers: {
         fileImg: imghelper,
-        pathTo: pathHelper
     }
 }));
 
@@ -80,19 +72,31 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.raw({ type: 'image/*', limit: '10mb' }));
 app.use(express.json())
 
-
-
 app.get('/', function (req, res) {
+
+})
+
+app.get('/filemanager', function (req, res) {
     let root = '/'
-    let path_array = []
+    let path_names = []
+    let whole_paths = [];
+    let path_array = [];
     let files_array = [];
     let dirs_array = [];
     if (req.query.path != undefined) {
         root = req.query.path;
     }
     ////Tworzenie tablicy ze ścieżki 
-    path_array = root.split('/').splice(2, root.split('/').length)
-    // console.log(path_array);
+    path_names = root.split('/').splice(2, root.split('/').length)
+    for (i in path_names) {
+        whole_paths[i] = path_names.slice(0, (parseInt(i) + 1)).join('/');
+    }
+    for (i in path_names) {
+        path_array.push({
+            name: path_names[parseInt(i)],
+            path: whole_paths[parseInt(i)]
+        })
+    }
 
     fs.readdir(path.join(__dirname, 'upload', root), (err, files) => {
         if (err) throw err
@@ -107,7 +111,7 @@ app.get('/', function (req, res) {
         })
     })
 
-    res.render('index.hbs', { files_array, dirs_array, root: root, path_array });
+    res.render('filemanager.hbs', { files_array, dirs_array, root: root, path_array });
 
 })
 
@@ -119,7 +123,7 @@ app.get("/addFolder", function (req, res) {
             if (err) throw err
         })
     }
-    res.redirect(`/?path=${root}`)
+    res.redirect(`/filemanager?path=${root}`)
 })
 
 app.get("/addFile", function (req, res) {
@@ -177,7 +181,7 @@ app.get("/addFile", function (req, res) {
             if (err) throw err
         })
     }
-    res.redirect(`/?path=${root}`)
+    res.redirect(`filemanager?path=${root}`)
 })
 
 app.get("/deleteFile", function (req, res) {
@@ -189,7 +193,7 @@ app.get("/deleteFile", function (req, res) {
             if (err) throw err
         })
     }
-    res.redirect(`/?path=${root}`)
+    res.redirect(`/filemanager?path=${root}`)
 })
 
 app.get("/deleteFolder", function (req, res) {
@@ -201,7 +205,7 @@ app.get("/deleteFolder", function (req, res) {
             if (err) throw err
         })
     }
-    res.redirect(`/?path=${root}`)
+    res.redirect(`/filemanager?path=${root}`)
 })
 
 app.get("/rnFolder", function (req, res) {
@@ -218,7 +222,7 @@ app.get("/rnFolder", function (req, res) {
                 }
             })
         }
-        res.redirect(`/?path=${new_path}`)
+        res.redirect(`/filemanager?path=${new_path}`)
     }
 })
 
@@ -312,7 +316,7 @@ app.post("/saveSettings", function (req, res) {
     })
 })
 
-app.post("/", function (req, res) {
+app.post("/filemanager", function (req, res) {
     let root;
     let form = formidable({});
     form.keepExtensions = true;
@@ -341,7 +345,7 @@ app.post("/", function (req, res) {
                 })
             }
         }
-        res.redirect('/');
+        res.redirect('/filemanager');
     });
 })
 

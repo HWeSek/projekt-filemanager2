@@ -39,7 +39,7 @@
             folderu</button>
 
         <button class="btn btn-info btn-lg p-1" onclick="document.getElementById('fileSelect').click()">
-            <form class="m-0" action="/" method="post" enctype="multipart/form-data">
+            <form class="m-0" action="/filemanager" method="post" enctype="multipart/form-data">
                 Wybierz pliki
                 <input type="hidden" name="root" value="{{ root }}">
                 <input type="file" id="fileSelect" hidden class="form-control-file" required name="upload" multiple>
@@ -52,17 +52,18 @@
     </aside>
     <main>
         {{!-- VIEW --}}
-
-        <p id="path_line"><a href="/">Home</a> {{#each path_array}} > <a
-                href="?path={{pathTo this ../root}}">{{this}}</a>
-            {{/each}}</p>
+        <p id="path_line">
+            <a href="/filemanager">Home</a> {{#each path_array}} &gt;
+            <a href="/filemanager?path=//{{path}}">{{name}}</a>
+        {{/each}}
+        </p>
 
         <hr>
         <div class="directories">
             {{#each dirs_array}}
             <div class="dirbox">
                 <form method="get" action="/deleteFolder">
-                    <a href="/?path={{../root}}/{{name}}">{{{fileImg type}}}</a>
+                    <a href="/filemanager?path={{../root}}/{{name}}">{{{fileImg type}}}</a>
                     <input type="hidden" name="root" value="{{ ../root }}">
                     <button type="submit" name="name" value="{{name}}" class="delete-btn">X</button>
                 </form>
