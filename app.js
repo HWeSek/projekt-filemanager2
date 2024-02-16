@@ -4,6 +4,8 @@ const PORT = 3000;
 const path = require("path")
 const fs = require("fs")
 const mime = require('mime-types')
+const cookieparser = require("cookie-parser");
+const Datastore = require('nedb')
 
 const imghelper = function (type) {
     let src;
@@ -64,6 +66,13 @@ app.engine('hbs', hbs({
 
 app.set('view engine', 'hbs');
 
+//////neDb
+
+const users = new Datastore({
+    filename: 'users.db',
+    autoload: true
+});
+
 const formidable = require('formidable');
 const bodyParser = require('body-parser');
 const { log } = require('console');
@@ -71,10 +80,46 @@ const { redirect } = require('statuses');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.raw({ type: 'image/*', limit: '10mb' }));
 app.use(express.json())
+app.use(cookieparser())
 
-app.get('/', function (req, res) {
 
+
+////REGISTER
+app.get('/register', function (req, res) {
+    res.render('register.hbs', { layout: 'notloggedin.hbs' });
 })
+
+app.post('/register', function (req, res) {
+    const username = req.body.username;
+    const password = req.body.passwd;
+    users.insert({ username: username, password: password }, function (err, newDoc) {
+        res.redirect('/login');
+    })
+})
+
+////////LOGIN
+
+app.get('/login', function (req, res) {
+    res.render('login.hbs', { layout: 'notloggedin.hbs' });
+})
+
+app.post('/login', function (req, res) {
+    const username = req.body.username;
+    const password = req.body.passwd;
+    users.find({ username: username }, function (err, user) {
+        if (user[0].password == password) {
+            console.log('zalogowano');
+            res.cookie("login", username, { httpOnly: true, maxAge: 30 * 1000 });
+            res.redirect('/');
+        }
+    });
+})
+
+///////INDEX 
+app.get('/', function (req, res) {
+    res.render('index.hbs', { layout: 'notloggedin.hbs' });
+})
+
 
 app.get('/filemanager', function (req, res) {
     let root = '/'
