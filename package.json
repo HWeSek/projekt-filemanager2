@@ -67,6 +67,7 @@
     "nedb": "^1.8.0",
     "negotiator": "^0.6.3",
     "neo-async": "^2.6.2",
+    "nocache": "^4.0.0",
     "object-inspect": "^1.13.1",
     "on-finished": "^2.4.1",
     "once": "^1.4.0",

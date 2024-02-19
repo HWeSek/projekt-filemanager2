@@ -6,6 +6,7 @@ const fs = require("fs")
 const mime = require('mime-types')
 const cookieparser = require("cookie-parser");
 const Datastore = require('nedb')
+const nocache = require("nocache");
 
 const imghelper = function (type) {
     let src;
@@ -81,7 +82,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.raw({ type: 'image/*', limit: '10mb' }));
 app.use(express.json())
 app.use(cookieparser())
-
+app.use(nocache())
 
 
 ////REGISTER
@@ -111,12 +112,20 @@ app.get('/login', function (req, res) {
 app.post('/login', function (req, res) {
     const username = req.body.username;
     const password = req.body.passwd;
+
     users.find({ username: username }, function (err, user) {
-        if (user[0].password == password) {
-            console.log('zalogowano');
-            res.cookie("login", username, { httpOnly: true, maxAge: 30 * 1000 });
-            res.redirect('/');
+        try {
+            if (user[0].password == password) {
+                console.log('zalogowano');
+                res.cookie("login", username, { httpOnly: true, maxAge: 30 * 1000 });
+                res.redirect('/');
+            } else {
+                res.render('error.hbs', { layout: 'notloggedin.hbs', error: "Zły login lub hasło!" })
+            }
+        } catch (error) {
+            res.render('error.hbs', { layout: 'notloggedin.hbs', error: "Nie ma takiego użytkownika!" })
         }
+
     });
 })
 
