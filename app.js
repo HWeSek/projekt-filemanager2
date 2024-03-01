@@ -117,7 +117,7 @@ app.post('/login', function (req, res) {
         try {
             if (user[0].password == password) {
                 console.log('zalogowano');
-                res.cookie("login", username, { httpOnly: true, maxAge: 30 * 1000 });
+                res.cookie("login", username, { httpOnly: true, maxAge: 3000 * 1000 });
                 res.redirect('/');
             } else {
                 res.render('error.hbs', { layout: 'notloggedin.hbs', error: "Zły login lub hasło!" })
@@ -150,12 +150,13 @@ app.get('/logout', function (req, res) {
 ////////////////////////FILEMANAGER
 app.get('/filemanager', function (req, res) {
     if (req.cookies.login) {
-        let root = `/${req.cookies.login}`
+        let root = `/`
         let path_names = []
         let whole_paths = [];
         let path_array = [];
         let files_array = [];
         let dirs_array = [];
+        let username = req.cookies.login;
         if (req.query.path != undefined) {
             root = req.query.path;
         }
@@ -171,10 +172,10 @@ app.get('/filemanager', function (req, res) {
             })
         }
 
-        fs.readdir(path.join(__dirname, 'upload', root), (err, files) => {
+        fs.readdir(path.join(__dirname, 'upload', username, root), (err, files) => {
             if (err) throw err
             files.forEach((file) => {
-                fs.lstat(path.join(__dirname, 'upload', root, file), (err, stats) => {
+                fs.lstat(path.join(__dirname, 'upload', username, root, file), (err, stats) => {
                     if (stats.isDirectory()) {
                         dirs_array.push({ name: file, type: 'dir' })
                     } else {
@@ -184,7 +185,7 @@ app.get('/filemanager', function (req, res) {
             })
         })
 
-        res.render('filemanager.hbs', { files_array, dirs_array, root: root, path_array });
+        res.render('filemanager.hbs', { files_array, dirs_array, root: root, path_array, username });
     } else {
         res.render('error.hbs', { layout: 'notloggedin.hbs', error: "Nie zalogowano!" })
     }
@@ -195,8 +196,10 @@ app.get("/addFolder", function (req, res) {
     if (req.cookies.login) {
         let name = req.query.name;
         let root = req.query.root;
-        if (!fs.existsSync(path.join(__dirname, 'upload', (root + '/' + name)))) {
-            fs.mkdir(path.join(__dirname, 'upload', (root + '/' + name)), (err) => {
+        let username = req.cookies.login;
+
+        if (!fs.existsSync(path.join(__dirname, 'upload', username, (root + '/' + name)))) {
+            fs.mkdir(path.join(__dirname, 'upload', username ,(root + '/' + name)), (err) => {
                 if (err) throw err
             })
         }
@@ -211,9 +214,10 @@ app.get("/addFile", function (req, res) {
     if (req.cookies.login) {
         let name = req.query.name;
         let root = req.query.root;
+        let username = req.cookies.login;
         let file_type = name.split('.')[1]
         let contents = '';
-        if (!fs.existsSync(path.join(__dirname, 'upload', (root + '/' + name)))) {
+        if (!fs.existsSync(path.join(__dirname, 'upload', username ,(root + '/' + name)))) {
 
             switch (file_type) {
                 case 'html':
@@ -259,7 +263,7 @@ app.get("/addFile", function (req, res) {
                     break;
             }
 
-            fs.writeFile(path.join(__dirname, 'upload', (root + '/' + name)), contents, (err) => {
+            fs.writeFile(path.join(__dirname, 'upload', username ,(root + '/' + name)), contents, (err) => {
                 if (err) throw err
             })
         }
@@ -272,9 +276,10 @@ app.get("/deleteFile", function (req, res) {
     if (req.cookies.login) {
         let name = req.query.name;
         let root = req.query.root;
-        if (fs.existsSync(path.join(__dirname, 'upload', (root + '/' + name)))) {
+        let username = req.cookies.login;
+        if (fs.existsSync(path.join(__dirname, 'upload', username ,(root + '/' + name)))) {
 
-            fs.unlink(path.join(__dirname, 'upload', (root + '/' + name)), (err) => {
+            fs.unlink(path.join(__dirname, 'upload', username ,(root + '/' + name)), (err) => {
                 if (err) throw err
             })
         }
@@ -289,9 +294,10 @@ app.get("/deleteFolder", function (req, res) {
     if (req.cookies.login) {
         let name = req.query.name;
         let root = req.query.root;
-        if (fs.existsSync(path.join(__dirname, 'upload', (root + '/' + name)))) {
+        let username = req.cookies.login;
+        if (fs.existsSync(path.join(__dirname, 'upload', username,(root + '/' + name)))) {
 
-            fs.rmSync(path.join(__dirname, 'upload', (root + '/' + name)), { recursive: true, force: true }, (err) => {
+            fs.rmSync(path.join(__dirname, 'upload', username,(root + '/' + name)), { recursive: true, force: true }, (err) => {
                 if (err) throw err
             })
         }
@@ -306,12 +312,13 @@ app.get("/rnFolder", function (req, res) {
     if (req.cookies.login) {
         let name = req.query.name;
         let root = req.query.root;
+        let username = req.cookies.login;
         let new_path = root.split('/');
         new_path[new_path.length - 1] = name;
         new_path = new_path.join('/')
         if (root != '/') {
-            if (fs.existsSync(path.join(__dirname, 'upload', root))) {
-                fs.rename(path.join(__dirname, 'upload', root), path.join(__dirname, 'upload', new_path), (err) => {
+            if (fs.existsSync(path.join(__dirname, 'upload', username,root))) {
+                fs.rename(path.join(__dirname, 'upload', username,root), path.join(__dirname, 'upload', username,new_path), (err) => {
                     if (err) console.log(err)
                     else {
                     }
@@ -329,13 +336,14 @@ app.get("/rnFolder", function (req, res) {
 app.get('/fileEditor', function (req, res) {
     if (req.cookies.login) {
         let root = req.query.name;
-        if (fs.existsSync(path.join(__dirname, 'upload', root))) {
-            fs.readFile(path.join(__dirname, 'upload', root), "utf-8", (err, data) => {
+        let username = req.cookies.login;
+        if (fs.existsSync(path.join(__dirname, 'upload', username,root))) {
+            fs.readFile(path.join(__dirname, 'upload', username,root), "utf-8", (err, data) => {
                 if (err) console.log(err)
                 else {
                     let type;
                     try {
-                        type = mime.lookup(path.join(__dirname, 'upload', root)).split('/')[0];
+                        type = mime.lookup(path.join(__dirname, 'upload', username,root)).split('/')[0];
                     } catch (error) {
                         type = 'none';
                     }
@@ -349,6 +357,7 @@ app.get('/fileEditor', function (req, res) {
                             { name: "invert" },
                             { name: "sepia" }
                         ]
+                        root = username + root;
                         contents.effects = effects;
                     } else {
                         fileName = "editor.hbs"
@@ -367,19 +376,24 @@ app.get('/fileEditor', function (req, res) {
 ////////////////////////////SAVE AND PREVIEW IMAGE/////////////////////////////////
 app.post('/saveImage', function (req, res) {
     let form = formidable({});
+    let username = req.cookies.login;
     form.keepExtensions = true;
     form.parse(req, function (err, fields, files) {
+        //console.log(fields);
         fs.rename(files.img.path, path.join(__dirname, 'upload', fields.path), (err) => {
             res.send('Zapisano pomyślnie!')
         })
+        if(err) throw err
     })
 })
 
 app.get('/previewFile', function (req, res) {
     if (req.cookies.login) {
         let root = req.query.name;
-        if (fs.existsSync(path.join(__dirname, 'upload', root))) {
-            res.sendFile(path.join(__dirname, 'upload', root))
+        let username = req.cookies.login;
+
+        if (fs.existsSync(path.join(__dirname, 'upload', username,root))) {
+            res.sendFile(path.join(__dirname, 'upload', username,root))
         }
     } else {
         res.render('error.hbs', { layout: 'notloggedin.hbs', error: "Nie zalogowano!" })
@@ -392,7 +406,8 @@ app.get('/saveFile', function (req, res) {
     if (req.cookies.login) {
         let content = req.query.content;
         let root = req.query.root;
-        fs.writeFile(path.join(__dirname, 'upload', root), content, (err) => {
+        let username = req.cookies.login;
+        fs.writeFile(path.join(__dirname, 'upload', username,root), content, (err) => {
             if (err) throw err;
             res.redirect(`/fileEditor?name=${root}`)
         })
@@ -406,12 +421,13 @@ app.get("/rnFile", function (req, res) {
     if (req.cookies.login) {
         let name = req.query.name;
         let root = req.query.root;
+        let username = req.cookies.login;
         let new_path = root.split('/');
         new_path[new_path.length - 1] = name;
         new_path = new_path.join('/')
         if (root != '/') {
-            if (fs.existsSync(path.join(__dirname, 'upload', root))) {
-                fs.rename(path.join(__dirname, 'upload', root), path.join(__dirname, 'upload', new_path), (err) => {
+            if (fs.existsSync(path.join(__dirname, 'upload', username,root))) {
+                fs.rename(path.join(__dirname, 'upload', username,root), path.join(__dirname, 'upload', username,new_path), (err) => {
                     if (err) console.log(err)
                     else {
                     }
@@ -434,6 +450,7 @@ app.post("/saveSettings", function (req, res) {
 
 app.post("/filemanager", function (req, res) {
     let root;
+    let username = req.cookies.login;
     let form = formidable({});
     form.keepExtensions = true;
     form.multiples = true;
@@ -443,8 +460,8 @@ app.post("/filemanager", function (req, res) {
 
         if (Array.isArray(files.upload)) {
             files.upload.forEach(file => {
-                if (!fs.existsSync(path.join(__dirname, 'upload', (root + '/' + file.name)))) {
-                    fs.rename(file.path, path.join(__dirname, 'upload', (root + '/' + file.name)), (err) => {
+                if (!fs.existsSync(path.join(__dirname, 'upload', username,(root + '/' + file.name)))) {
+                    fs.rename(file.path, path.join(__dirname, 'upload', username,(root + '/' + file.name)), (err) => {
                         if (err) console.log(err)
                         else {
                         }
@@ -453,8 +470,8 @@ app.post("/filemanager", function (req, res) {
             })
         }
         if (!Array.isArray(files.upload)) {
-            if (!fs.existsSync(path.join(__dirname, 'upload', (root + '/' + files.upload.name)))) {
-                fs.rename(files.upload.path, path.join(__dirname, 'upload', (root + '/' + files.upload.name)), (err) => {
+            if (!fs.existsSync(path.join(__dirname, 'upload', username,(root + '/' + files.upload.name)))) {
+                fs.rename(files.upload.path, path.join(__dirname, 'upload', username,(root + '/' + files.upload.name)), (err) => {
                     if (err) console.log(err)
                     else {
                     }

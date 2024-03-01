@@ -20,8 +20,6 @@ window.onload = function () {
         }
     })
 
-
-
     document.getElementById('saveBtn').onclick = () => {
         let canvas = getCanvas()
         canvas.toBlob((blob) => {
